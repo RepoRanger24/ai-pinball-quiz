@@ -27,8 +27,20 @@ if "question" not in st.session_state:
     st.session_state.question = None
 if "player" not in st.session_state:
     st.session_state.player = "Player"
+st.session_state.player = st.sidebar.text_input("Player Name", st.session_state.player)
+
+topic = st.sidebar.selectbox(
+    "Question topic",
+    ["Fun trivia", "Electrical", "CNC/Controls", "Safety (NFPA/OSHA)", "AI basics"]
+)
+
+difficulty = st.sidebar.selectbox(
+    "Difficulty",
+    ["Easy", "Medium", "Hard"]
+)
 
 st.session_state.player = st.sidebar.text_input("Player Name", st.session_state.player)
+
 st.sidebar.write("Score:", st.session_state.score)
 st.sidebar.write("Multiplier:", st.session_state.mult)
 
