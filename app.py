@@ -1,7 +1,7 @@
 import random
 import streamlit as st
 from openai import OpenAI
-client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+
 
 from openai import OpenAI
 import pandas as pd
@@ -42,17 +42,49 @@ def load_scores():
 def save_scores(df):
     df.to_csv(SCOREFILE, index=False)
 
-def generate_question():
+def generate_question(topic="Fun trivia", difficulty="Easy"):
     client = get_client()
     if client is None:
-        return "Which unit measures resistance?", ["Volt","Ohm","Amp","Watt"], "B"
+        return "Which unit measures resistance?", ["Volt", "Ohm", "Amp", "Watt"], "B"
+
     import json
+
+    prompt = f"""
+Create ONE multiple-choice question.
+
+Topic: {topic}
+Difficulty: {difficulty}
+
+Return ONLY valid JSON in this exact schema:
+{{
+  "question": "text",
+  "choices": ["A text","B text","C text","D text"],
+  "answer": "A"  // must be A, B, C, or D
+}}
+"""
+
     resp = client.chat.completions.create(
         model="gpt-4o-mini",
-        messages=[{"role":"user","content":"Create a trivia question. Return JSON with question, choices, answer(A-D)"}]
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.7,
     )
-    data = json.loads(resp.choices[0].message.content)
-    return data["question"], data["choices"], data["answer"]
+
+    content = resp.choices[0].message.content.strip()
+
+    # Safety: if model wraps JSON in code fences, strip them
+    content = content.replace("```json", "").replace("```", "").strip()
+
+    data = json.loads(content)
+
+    q = data["question"]
+    choices = data["choices"]
+    ans = data["answer"].strip().upper()
+
+    # Final guardrails
+    if ans not in ["A", "B", "C", "D"] or len(choices) != 4:
+        return "Which unit measures resistance?", ["Volt", "Ohm", "Amp", "Watt"], "B"
+
+    return q, choices, ans
 
 # Buttons
 col1, col2, col3 = st.columns(3)
