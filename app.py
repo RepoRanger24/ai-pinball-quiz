@@ -71,17 +71,21 @@ if left or right:
     flipper_boost = 0.20
 
 if advance:
+if advance:
     st.session_state.ball += random.randint(10, 20)
 
     base_drain = 0.10 + (st.session_state.ball / 200)
     drain_chance = max(0.02, base_drain - flipper_boost)
 
-      if random.random() < drain_chance:
+    if random.random() < drain_chance:
         st.warning("🕳️ DRAIN! Game Over.")
 
-        # Save score if it's good enough
+        # Save score
         scores_df = load_scores()
-        new_row = pd.DataFrame([{"name": st.session_state.player, "score": st.session_state.score}])
+        new_row = pd.DataFrame([{
+            "name": st.session_state.player,
+            "score": st.session_state.score
+        }])
         scores_df = pd.concat([scores_df, new_row], ignore_index=True)
         scores_df = scores_df.sort_values("score", ascending=False).head(10)
         save_scores(scores_df)
@@ -90,26 +94,14 @@ if advance:
         st.session_state.ball = 0
         st.session_state.mult = 1
         st.session_state.score = 0
- 
-# Save score if it's good enough
-scores_df = load_scores()
-new_row = pd.DataFrame([{"name": st.session_state.player, "score": st.session_state.score}])
-scores_df = pd.concat([scores_df, new_row], ignore_index=True)
-scores_df = scores_df.sort_values("score", ascending=False).head(10)
-save_scores(scores_df)
 
-# Reset game state (keep highscores)
-st.session_state.ball = 0
-st.session_state.mult = 1
-st.session_state.score = 0
-   
     else:
         if random.random() < 0.45:
             st.session_state.question = generate_question()
         else:
             st.session_state.score += 10 * st.session_state.mult
 
-st.progress(st.session_state.ball)
+    st.progress(st.session_state.ball)
 
 if st.session_state.question:
     q, choices, ans = st.session_state.question
