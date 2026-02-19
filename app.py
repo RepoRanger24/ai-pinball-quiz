@@ -38,10 +38,34 @@ def generate_question():
 if st.button("Launch Ball"):
     st.session_state.ball = 0
 
-if st.button("Advance Ball"):
-    st.session_state.ball += random.randint(10,20)
-    if random.random() < 0.4:
-        st.session_state.question = generate_question()
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    left = st.button("⬅️ Left Flipper")
+with col2:
+    advance = st.button("Advance Ball")
+with col3:
+    right = st.button("Right Flipper ➡️")
+
+flipper_boost = 0.0
+if left or right:
+    flipper_boost = 0.20
+
+if advance:
+    st.session_state.ball += random.randint(10, 20)
+
+    base_drain = 0.10 + (st.session_state.ball / 200)
+    drain_chance = max(0.02, base_drain - flipper_boost)
+
+    if random.random() < drain_chance:
+        st.warning("🕳️ DRAIN! Ball lost.")
+        st.session_state.ball = 0
+        st.session_state.mult = 1
+    else:
+        if random.random() < 0.45:
+            st.session_state.question = generate_question()
+        else:
+            st.session_state.score += 10 * st.session_state.mult
 
 st.progress(st.session_state.ball)
 
