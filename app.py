@@ -76,9 +76,21 @@ if advance:
     base_drain = 0.10 + (st.session_state.ball / 200)
     drain_chance = max(0.02, base_drain - flipper_boost)
 
-    if random.random() < drain_chance:
-    st.warning("🕳️ DRAIN! Game Over.")
+      if random.random() < drain_chance:
+        st.warning("🕳️ DRAIN! Game Over.")
 
+        # Save score if it's good enough
+        scores_df = load_scores()
+        new_row = pd.DataFrame([{"name": st.session_state.player, "score": st.session_state.score}])
+        scores_df = pd.concat([scores_df, new_row], ignore_index=True)
+        scores_df = scores_df.sort_values("score", ascending=False).head(10)
+        save_scores(scores_df)
+
+        # Reset game
+        st.session_state.ball = 0
+        st.session_state.mult = 1
+        st.session_state.score = 0
+ 
 # Save score if it's good enough
 scores_df = load_scores()
 new_row = pd.DataFrame([{"name": st.session_state.player, "score": st.session_state.score}])
