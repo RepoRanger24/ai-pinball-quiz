@@ -13,6 +13,7 @@ def get_client():
         return None
     return OpenAI(api_key=api_key)
 
+# Game state
 if "score" not in st.session_state:
     st.session_state.score = 0
 if "mult" not in st.session_state:
@@ -21,26 +22,22 @@ if "ball" not in st.session_state:
     st.session_state.ball = 0
 if "question" not in st.session_state:
     st.session_state.question = None
-# Player name
 if "player" not in st.session_state:
-    st.session_state.player = "Chip"
+    st.session_state.player = "Player"
 
-st.session_state.player = st.sidebar.text_input("Player name", st.session_state.player)
+st.session_state.player = st.sidebar.text_input("Player Name", st.session_state.player)
+st.sidebar.write("Score:", st.session_state.score)
+st.sidebar.write("Multiplier:", st.session_state.mult)
 
 SCOREFILE = "highscores.csv"
 
 def load_scores():
     if os.path.exists(SCOREFILE):
         return pd.read_csv(SCOREFILE)
-    return pd.DataFrame(columns=["name", "score"])
+    return pd.DataFrame(columns=["name","score"])
 
 def save_scores(df):
     df.to_csv(SCOREFILE, index=False)
-
-scores_df = load_scores()
-
-st.sidebar.write("Score:", st.session_state.score)
-st.sidebar.write("Multiplier:", st.session_state.mult)
 
 def generate_question():
     client = get_client()
@@ -54,11 +51,8 @@ def generate_question():
     data = json.loads(resp.choices[0].message.content)
     return data["question"], data["choices"], data["answer"]
 
-if st.button("Launch Ball"):
-    st.session_state.ball = 0
-
+# Buttons
 col1, col2, col3 = st.columns(3)
-
 with col1:
     left = st.button("⬅️ Left Flipper")
 with col2:
@@ -66,13 +60,13 @@ with col2:
 with col3:
     right = st.button("Right Flipper ➡️")
 
-flipper_boost = 0.0
-if left or right:
-    flipper_boost = 0.20
+flipper_boost = 0.2 if left or right else 0.0
+
+if st.button("Launch Ball"):
+    st.session_state.ball = 0
 
 if advance:
-if advance:
-    st.session_state.ball += random.randint(10, 20)
+    st.session_state.ball += random.randint(10,20)
 
     base_drain = 0.10 + (st.session_state.ball / 200)
     drain_chance = max(0.02, base_drain - flipper_boost)
@@ -80,20 +74,18 @@ if advance:
     if random.random() < drain_chance:
         st.warning("🕳️ DRAIN! Game Over.")
 
-        # Save score
         scores_df = load_scores()
         new_row = pd.DataFrame([{
             "name": st.session_state.player,
             "score": st.session_state.score
         }])
-        scores_df = pd.concat([scores_df, new_row], ignore_index=True)
-        scores_df = scores_df.sort_values("score", ascending=False).head(10)
+        scores_df = pd.concat([scores_df,new_row],ignore_index=True)
+        scores_df = scores_df.sort_values("score",ascending=False).head(10)
         save_scores(scores_df)
 
-        # Reset game
         st.session_state.ball = 0
-        st.session_state.mult = 1
         st.session_state.score = 0
+        st.session_state.mult = 1
 
     else:
         if random.random() < 0.45:
@@ -101,23 +93,21 @@ if advance:
         else:
             st.session_state.score += 10 * st.session_state.mult
 
-    st.progress(st.session_state.ball)
+st.progress(st.session_state.ball)
 
 if st.session_state.question:
     q, choices, ans = st.session_state.question
     choice = st.radio(q, ["A "+choices[0],"B "+choices[1],"C "+choices[2],"D "+choices[3]])
-    if st.button("Submit"):
+    if st.button("Submit Answer"):
         if choice.startswith(ans):
+            st.success("Correct!")
             st.session_state.score += 100 * st.session_state.mult
             st.session_state.mult += 1
-            st.success("Correct!")
         else:
-            st.session_state.mult = 1
             st.error("Wrong!")
+            st.session_state.mult = 1
         st.session_state.question = None
-st.subheader("🏆 High Scores (Top 10)")
+
+st.subheader("🏆 High Scores")
 scores_df = load_scores()
-if len(scores_df) == 0:
-    st.info("No high scores yet. Play a round!")
-else:
-    st.dataframe(scores_df, use_container_width=True, hide_index=True)
+st.dataframe(scores_df, use_container_width=True, hide_index=True)
