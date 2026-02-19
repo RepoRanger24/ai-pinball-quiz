@@ -1,6 +1,8 @@
 import random
 import streamlit as st
 from openai import OpenAI
+import pandas as pd
+import os
 
 st.set_page_config(page_title="AI Pinball Quiz", page_icon="🕹️")
 st.title("🕹️ AI Pinball Quiz")
@@ -19,6 +21,23 @@ if "ball" not in st.session_state:
     st.session_state.ball = 0
 if "question" not in st.session_state:
     st.session_state.question = None
+# Player name
+if "player" not in st.session_state:
+    st.session_state.player = "Chip"
+
+st.session_state.player = st.sidebar.text_input("Player name", st.session_state.player)
+
+SCOREFILE = "highscores.csv"
+
+def load_scores():
+    if os.path.exists(SCOREFILE):
+        return pd.read_csv(SCOREFILE)
+    return pd.DataFrame(columns=["name", "score"])
+
+def save_scores(df):
+    df.to_csv(SCOREFILE, index=False)
+
+scores_df = load_scores()
 
 st.sidebar.write("Score:", st.session_state.score)
 st.sidebar.write("Multiplier:", st.session_state.mult)
@@ -58,9 +77,20 @@ if advance:
     drain_chance = max(0.02, base_drain - flipper_boost)
 
     if random.random() < drain_chance:
-        st.warning("🕳️ DRAIN! Ball lost.")
-        st.session_state.ball = 0
-        st.session_state.mult = 1
+    st.warning("🕳️ DRAIN! Game Over.")
+
+# Save score if it's good enough
+scores_df = load_scores()
+new_row = pd.DataFrame([{"name": st.session_state.player, "score": st.session_state.score}])
+scores_df = pd.concat([scores_df, new_row], ignore_index=True)
+scores_df = scores_df.sort_values("score", ascending=False).head(10)
+save_scores(scores_df)
+
+# Reset game state (keep highscores)
+st.session_state.ball = 0
+st.session_state.mult = 1
+st.session_state.score = 0
+   
     else:
         if random.random() < 0.45:
             st.session_state.question = generate_question()
@@ -81,3 +111,9 @@ if st.session_state.question:
             st.session_state.mult = 1
             st.error("Wrong!")
         st.session_state.question = None
+st.subheader("🏆 High Scores (Top 10)")
+scores_df = load_scores()
+if len(scores_df) == 0:
+    st.info("No high scores yet. Play a round!")
+else:
+    st.dataframe(scores_df, use_container_width=True, hide_index=True)
