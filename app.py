@@ -39,7 +39,7 @@ difficulty = st.sidebar.selectbox(
     ["Easy", "Medium", "Hard"]
 )
 
-st.session_state.player = st.sidebar.text_input("Player Name", st.session_state.player)
+
 
 st.sidebar.write("Score:", st.session_state.score)
 st.sidebar.write("Multiplier:", st.session_state.mult)
