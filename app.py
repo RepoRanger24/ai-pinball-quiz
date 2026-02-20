@@ -17,7 +17,7 @@ def get_client():
         return None
     return OpenAI(api_key=api_key)
 # Load high scores from Supabase
-db = get_db()
+
 data = db.table("scores").select("*").order("score", desc=True).limit(10).execute()
 
 st.subheader("🏆 High Scores")
