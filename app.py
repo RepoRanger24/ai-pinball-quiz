@@ -1,3 +1,4 @@
+from supabase import create_client
 import random
 import streamlit as st
 from openai import OpenAI
@@ -15,7 +16,15 @@ def get_client():
     if not api_key:
         return None
     return OpenAI(api_key=api_key)
+# Load high scores from Supabase
+db = get_db()
+data = db.table("scores").select("*").order("score", desc=True).limit(10).execute()
 
+st.subheader("🏆 High Scores")
+if data.data:
+    st.table(data.data)
+else:
+    st.write("No scores yet!")
 # Game state
 if "score" not in st.session_state:
     st.session_state.score = 0
