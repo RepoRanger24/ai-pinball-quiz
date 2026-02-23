@@ -23,6 +23,8 @@ def get_db():
 # High Scores (Supabase)
 st.subheader("🏆 High Scores")
 
+scores_df = pd.DataFrame(columns=["name", "score"])  # <-- add this
+
 try:
     db = get_db()
     res = db.table("scores").select("*").order("score", desc=True).limit(10).execute()
