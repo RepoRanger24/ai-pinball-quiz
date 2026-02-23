@@ -19,9 +19,7 @@ def get_db():
     url = st.secrets["SUPABASE_URL"]
     key = st.secrets["SUPABASE_KEY"]
     return create_client(url, key)  
-# Load high scores from Supabase
 
-data = db.table("scores").select("*").order("score", desc=True).limit(10).execute()
 
 st.subheader("🏆 High Scores")
 if data.data:
