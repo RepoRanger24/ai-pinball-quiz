@@ -224,4 +224,22 @@ if db:
         st.write("Database not ready yet.")
 else:
     st.write("Database not connected.")
-st.dataframe(scores_df, use_container_width=True, hide_index=True)
+import pandas as pd
+import streamlit as st
+
+st.subheader("🏆 High Scores")
+
+# Always define it so Streamlit never crashes
+scores_df = pd.DataFrame()
+
+try:
+    # If you already have a function that fetches scores, call it here
+    # scores_df = load_scores()
+    pass
+except Exception:
+    st.info("Database not ready yet.")
+
+if scores_df.empty:
+    st.info("High scores not available yet.")
+else:
+    st.dataframe(scores_df, use_container_width=True, hide_index=True)
