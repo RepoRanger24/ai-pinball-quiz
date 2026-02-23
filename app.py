@@ -4,9 +4,7 @@ from openai import OpenAI
 from supabase import create_client
 
 
-from openai import OpenAI
-import pandas as pd
-import os
+
 
 st.set_page_config(page_title="AI Pinball Quiz", page_icon="🕹️")
 st.title("🕹️ AI Pinball Quiz")
@@ -16,6 +14,11 @@ def get_client():
     if not api_key:
         return None
     return OpenAI(api_key=api_key)
+  # Connect to Supabase
+def get_db():
+    url = st.secrets["SUPABASE_URL"]
+    key = st.secrets["SUPABASE_KEY"]
+    return create_client(url, key)  
 # Load high scores from Supabase
 
 data = db.table("scores").select("*").order("score", desc=True).limit(10).execute()
