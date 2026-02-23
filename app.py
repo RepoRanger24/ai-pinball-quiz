@@ -1,7 +1,7 @@
-from supabase import create_client
-import random
 import streamlit as st
+import pandas as pd
 from openai import OpenAI
+from supabase import create_client
 
 
 from openai import OpenAI
