@@ -209,19 +209,7 @@ def get_ai_question():
     return q, a, b, c, d, correct
 
 
-# High Scores (from Supabase)
-st.subheader("🏆 High Scores")
 
-db = get_db()
-
-if db:
-    try:
-        scores = db.table("scores").select("*").order("score", desc=True).limit(10).execute()
-        if scores.data:
-            df = pd.DataFrame(scores.data)[["name","score"]]
-            st.table(df)
-        else:
-            st.write("No scores yet!")
   # High Scores (from Supabase)
 st.subheader("🏆 High Scores")
 
@@ -238,6 +226,4 @@ try:
 except Exception:
     st.warning("High scores not available yet.")
 
-    st.info("High scores not available yet.")
-else:
-    st.dataframe(scores_df, use_container_width=True, hide_index=True)
+ 
