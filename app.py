@@ -27,11 +27,11 @@ try:
     db = get_db()
     res = db.table("scores").select("*").order("score", desc=True).limit(10).execute()
 
-    if res.data:
-        df = pd.DataFrame(res.data)[["name", "score"]]
-        st.table(df)
-    else:
-        st.write("No scores yet!")
+ if res.data:
+ st.dataframe(scores_df, use_container_width=True, hide_index=True)   
+    st.dataframe(scores_df, use_container_width=True, hide_index=True)
+else:
+    st.info("No scores yet!")   
 except Exception:
     st.write("High scores not available yet.")
 # Game state
