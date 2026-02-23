@@ -20,12 +20,20 @@ def get_db():
     key = st.secrets["SUPABASE_KEY"]
     return create_client(url, key)  
 
-
+# High Scores (Supabase)
 st.subheader("🏆 High Scores")
-if data.data:
-    st.table(data.data)
-else:
-    st.write("No scores yet!")
+
+try:
+    db = get_db()
+    res = db.table("scores").select("*").order("score", desc=True).limit(10).execute()
+
+    if res.data:
+        df = pd.DataFrame(res.data)[["name", "score"]]
+        st.table(df)
+    else:
+        st.write("No scores yet!")
+except Exception:
+    st.write("High scores not available yet.")
 # Game state
 if "score" not in st.session_state:
     st.session_state.score = 0
