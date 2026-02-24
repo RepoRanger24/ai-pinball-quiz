@@ -83,47 +83,47 @@ def generate_question(topic="Fun trivia", difficulty="Easy"):
     client = get_client()
     if client is None:
         return "Which unit measures resistance?", ["Volt", "Ohm", "Amp", "Watt"], "B"
-
+    
     import json
-
+    
     prompt = f"""
-Create ONE multiple-choice question.
-
-Topic: {topic}
-Difficulty: {difficulty}
-
-Return ONLY valid JSON in this exact schema:
-{{
-  "question": "text",
-  "choices": ["A text","B text","C text","D text"],
-  "answer": "A"  // must be A, B, C, or D
-}}
-"""
-
+    Create ONE multiple-choice question.
+    
+    Topic: {topic}
+    Difficulty: {difficulty}
+    
+    Return ONLY valid JSON in this exact schema:
+    {{
+    "question": "text",
+    "choices": ["A text","B text","C text","D text"],
+    "answer": "A"  // must be A, B, C, or D
+    }}
+    """
+    
     resp = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.9,
     )
-
+    
     content = resp.choices[0].message.content.strip()
     content = content.replace("```json", "").replace("```", "").strip()
-
+    
     
     data = json.loads(content)
-
+    
     q = data["question"]
     choices = data["choices"]
     ans = data["answer"].strip().upper()
-
+    
         # Final guardrails
         if ans not in ["A", "B", "C", "D"] or len(choices) != 4:
             return "Which unit measures resistance?", ["Volt", "Ohm", "Amp", "Watt"], "B"
-# Prevent repeat questions (try a few times)
-recent = st.session_state.get("recent_questions", [])[-8:]
-
-tries = 0
-while q in recent and tries < 3:
+    # Prevent repeat questions (try a few times)
+    recent = st.session_state.get("recent_questions", [])[-8:]
+    
+    tries = 0
+    while q in recent and tries < 3:
     tries += 1
     resp2 = client.chat.completions.create(
         model="gpt-4o-mini",
@@ -133,11 +133,11 @@ while q in recent and tries < 3:
     content2 = resp2.choices[0].message.content.strip()
     content2 = content2.replace("```json", "").replace("```", "").strip()
     data2 = json.loads(content2)
-
+    
     q = data2["question"]
     choices = data2["choices"]
     ans = data2["answer"].strip().upper()
-
+    
     if ans not in ["A", "B", "C", "D"] or len(choices) != 4:
         return "Which unit measures resistance?", ["Volt", "Ohm", "Amp", "Watt"], "B"
     
