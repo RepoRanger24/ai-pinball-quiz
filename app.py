@@ -138,9 +138,8 @@ if st.button("Launch Ball"):
 if advance:
     st.session_state.ball += random.randint(10,20)
 
-   base_drain = 0.05 + (st.session_state.ball / 400)
-drain_chance = max(0.01, base_drain - flipper_boost)
-
+    base_drain = 0.05 + (st.session_state.ball / 400)
+    drain_chance = max(0.01, base_drain - flipper_boost)
     if random.random() < drain_chance:
         st.warning("🕳️ DRAIN! Game Over.")
 
