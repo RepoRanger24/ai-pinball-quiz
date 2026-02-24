@@ -84,7 +84,7 @@ def generate_question(topic="Fun trivia", difficulty="Easy"):
         return "Which unit measures resistance?", ["Volt", "Ohm", "Amp", "Watt"], "B"
 
     import json
-    recent = st.session_state.get("recent_questions", [])[-5:]
+
     prompt = f"""
 Create ONE multiple-choice question.
 
@@ -102,26 +102,45 @@ Return ONLY valid JSON in this exact schema:
     resp = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[{"role": "user", "content": prompt}],
-        temperature=0.7,
+        temperature=0.9,
     )
 
     content = resp.choices[0].message.content.strip()
-
-    # Safety: if model wraps JSON in code fences, strip them
     content = content.replace("```json", "").replace("```", "").strip()
 
-    data = json.loads(content)
+    try:
+        data = json.loads(content)
 
-    q = data["question"]
-    choices = data["choices"]
-    ans = data["answer"].strip().upper()
-# Prevent repeat questions (simple version)
-recent = st.session_state.get("recent_questions", [])[-5:]
-# (we removed recursion to keep things stable)
+        q = data["question"]
+        choices = data["choices"]
+        ans = data["answer"].strip().upper()
 
-# Final guardrails
-if ans not in ["A", "B", "C", "D"] or len(choices) != 4:
-    return "Which unit measures resistance?", ["Volt", "Ohm", "Amp", "Watt"], "B"
+        # Final guardrails
+        if ans not in ["A", "B", "C", "D"] or len(choices) != 4:
+            return "Which unit measures resistance?", ["Volt", "Ohm", "Amp", "Watt"], "B"
 
-st.session_state.recent_questions.append(q)
-return q, choices, ans
+        # Prevent repeat questions (simple + safe)
+        recent = st.session_state.get("recent_questions", [])[-5:]
+        if q in recent:
+            # If it's a repeat, just tweak temp and ask once more
+            resp2 = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=1.0,
+            )
+            content2 = resp2.choices[0].message.content.strip()
+            content2 = content2.replace("```json", "").replace("```", "").strip()
+            data2 = json.loads(content2)
+
+            q = data2["question"]
+            choices = data2["choices"]
+            ans = data2["answer"].strip().upper()
+
+            if ans not in ["A", "B", "C", "D"] or len(choices) != 4:
+                return "Which unit measures resistance?", ["Volt", "Ohm", "Amp", "Watt"], "B"
+
+        st.session_state.recent_questions.append(q)
+        return q, choices, ans
+
+    except Exception:
+        return "Which unit measures resistance?", ["Volt", "Ohm", "Amp", "Watt"], "B"
