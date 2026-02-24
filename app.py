@@ -119,27 +119,29 @@ Return ONLY valid JSON in this exact schema:
         # Final guardrails
         if ans not in ["A", "B", "C", "D"] or len(choices) != 4:
             return "Which unit measures resistance?", ["Volt", "Ohm", "Amp", "Watt"], "B"
+# Prevent repeat questions (try a few times)
+recent = st.session_state.get("recent_questions", [])[-8:]
 
-        # Prevent repeat questions (simple + safe)
-        recent = st.session_state.get("recent_questions", [])[-5:]
-        if q in recent:
-            # If it's a repeat, just tweak temp and ask once more
-            resp2 = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{"role": "user", "content": prompt}],
-                temperature=1.0,
-            )
-            content2 = resp2.choices[0].message.content.strip()
-            content2 = content2.replace("```json", "").replace("```", "").strip()
-            data2 = json.loads(content2)
+tries = 0
+while q in recent and tries < 3:
+    tries += 1
+    resp2 = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt + "\n\nMake it DIFFERENT from the recent questions list."}],
+        temperature=1.0,
+    )
+    content2 = resp2.choices[0].message.content.strip()
+    content2 = content2.replace("```json", "").replace("```", "").strip()
+    data2 = json.loads(content2)
 
-            q = data2["question"]
-            choices = data2["choices"]
-            ans = data2["answer"].strip().upper()
+    q = data2["question"]
+    choices = data2["choices"]
+    ans = data2["answer"].strip().upper()
 
-            if ans not in ["A", "B", "C", "D"] or len(choices) != 4:
-                return "Which unit measures resistance?", ["Volt", "Ohm", "Amp", "Watt"], "B"
-
+    if ans not in ["A", "B", "C", "D"] or len(choices) != 4:
+        return "Which unit measures resistance?", ["Volt", "Ohm", "Amp", "Watt"], "B"
+    
+           
         st.session_state.recent_questions.append(q)
         return q, choices, ans
 
