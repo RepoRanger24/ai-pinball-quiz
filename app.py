@@ -144,14 +144,7 @@ if advance:
     if random.random() < drain_chance:
         st.warning("🕳️ DRAIN! Game Over.")
 
-        scores_df = load_scores()
-        new_row = pd.DataFrame([{
-            "name": st.session_state.player,
-            "score": st.session_state.score
-        }])
-        scores_df = pd.concat([scores_df,new_row],ignore_index=True)
-        scores_df = scores_df.sort_values("score",ascending=False).head(10)
-        save_scores(scores_df)
+       
 
         st.session_state.ball = 0
         st.session_state.score = 0
