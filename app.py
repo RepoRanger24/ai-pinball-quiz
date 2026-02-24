@@ -51,7 +51,8 @@ if "question" not in st.session_state:
 if "player" not in st.session_state:
     st.session_state.player = "Player"
 st.session_state.player = st.sidebar.text_input("Player Name", st.session_state.player)
-
+if "recent_questions" not in st.session_state:
+    st.session_state.recent_questions = []
 topic = st.sidebar.selectbox(
     "Question topic",
     ["Fun trivia", "Electrical", "CNC/Controls", "Safety (NFPA/OSHA)", "AI basics"]
