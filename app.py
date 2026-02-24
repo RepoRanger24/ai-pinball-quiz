@@ -92,11 +92,14 @@ Create ONE multiple-choice question.
 Topic: {topic}
 Difficulty: {difficulty}
 
+
 Return ONLY valid JSON in this exact schema:
 {{
+  "id": "short unique id (2-5 words)",
   "question": "text",
   "choices": ["A text","B text","C text","D text"],
   "answer": "A"
+}}
 }}
 """
 
