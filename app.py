@@ -109,7 +109,7 @@ Return ONLY valid JSON in this exact schema:
     content = resp.choices[0].message.content.strip()
     content = content.replace("```json", "").replace("```", "").strip()
 
-    try:
+    
         data = json.loads(content)
 
         q = data["question"]
