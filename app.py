@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import random
 from openai import OpenAI
 from supabase import create_client
 
