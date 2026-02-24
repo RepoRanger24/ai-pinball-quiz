@@ -155,7 +155,7 @@ if advance:
         else:
             st.session_state.score += 10 * st.session_state.mult
 
-st.progress(st.session_state.ball)
+st.progress(min(100, st.session_state.ball))
 
 if st.session_state.question:
     q, choices, ans = st.session_state.question
