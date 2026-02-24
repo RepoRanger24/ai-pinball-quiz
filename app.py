@@ -116,15 +116,16 @@ Return ONLY valid JSON in this exact schema:
     choices = data["choices"]
     ans = data["answer"].strip().upper()
 # Prevent repeat questions
-recent = st.session_state.get("recent_questions", [])[-5:]
+recent = st.session_state.get("recent_questions", [])[-5:]                             
 if q in recent:
-    return generate_question(topic, difficulty)
+    # Just accept it and move on (temporary safety)
+    pass
     # Final guardrails
     if ans not in ["A", "B", "C", "D"] or len(choices) != 4:
         return "Which unit measures resistance?", ["Volt", "Ohm", "Amp", "Watt"], "B"
-
-    return q, choices, ans
 st.session_state.recent_questions.append(q)
+    return q, choices, ans
+
 # Buttons
 col1, col2, col3 = st.columns(3)
 with col1:
