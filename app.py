@@ -171,38 +171,3 @@ if st.session_state.question:
         st.session_state.question = None
         # ---------- AI QUESTION ENGINE ----------
 
-def get_ai_question():
-    prompt = """
-    Create a very short fun trivia question.
-    Return ONLY in this format:
-
-    Question: <question>
-    A) <answer>
-    B) <answer>
-    C) <answer>
-    D) <answer>
-    Correct: <letter>
-    """
-
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role":"user","content":prompt}],
-        temperature=0.7
-    )
-
-    text = response.choices[0].message.content
-
-    lines = text.split("\n")
-    q = lines[0]
-    a = lines[1]
-    b = lines[2]
-    c = lines[3]
-    d = lines[4]
-    correct = lines[5].split(":")[1].strip()
-
-    return q, a, b, c, d, correct
-
-
-
-
- 
