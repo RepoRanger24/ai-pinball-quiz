@@ -205,20 +205,5 @@ def get_ai_question():
 
 
 
-  # High Scores (from Supabase)
-st.subheader("🏆 High Scores")
-
-try:
-    db = get_db()
-    res = db.table("scores").select("*").order("score", desc=True).limit(10).execute()
-
-    if res.data:
-        df = pd.DataFrame(res.data)[["name", "score"]]
-        st.dataframe(df, use_container_width=True, hide_index=True)
-    else:
-        st.info("No scores yet!")
-
-except Exception:
-    st.warning("High scores not available yet.")
 
  
