@@ -84,7 +84,7 @@ def generate_question(topic="Fun trivia", difficulty="Easy"):
         return "Which unit measures resistance?", ["Volt", "Ohm", "Amp", "Watt"], "B"
 
     import json
-recent = st.session_state.get("recent_questions", [])[-5:]
+    recent = st.session_state.get("recent_questions", [])[-5:]
     prompt = f"""
 Create ONE multiple-choice question.
 
