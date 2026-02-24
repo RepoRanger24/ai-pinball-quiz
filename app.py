@@ -39,6 +39,7 @@ try:
 
 except Exception as e:
     st.warning("High scores not available yet.")
+    st.caption(f"Debug: {type(e).__name__}: {e}")
 # Game state
 if "score" not in st.session_state:
     st.session_state.score = 0
@@ -144,3 +145,50 @@ Return ONLY valid JSON in this exact schema:
 
     except Exception:
         return "Which unit measures resistance?", ["Volt", "Ohm", "Amp", "Watt"], "B"
+# ---------------- GAME UI ----------------
+
+# Buttons
+col1, col2, col3 = st.columns(3)
+with col1:
+    left = st.button("⬅️ Left Flipper")
+with col2:
+    advance = st.button("Advance Ball")
+with col3:
+    right = st.button("Right Flipper ➡️")
+
+flipper_boost = 0.2 if left or right else 0.0
+
+if st.button("Launch Ball"):
+    st.session_state.ball = 0
+
+if advance:
+    st.session_state.ball += random.randint(10,20)
+
+    base_drain = 0.05 + (st.session_state.ball / 400)
+    drain_chance = max(0.01, base_drain - flipper_boost)
+
+    if random.random() < drain_chance:
+        st.warning("🕳️ DRAIN! Game Over.")
+        st.session_state.ball = 0
+        st.session_state.score = 0
+        st.session_state.mult = 1
+    else:
+        if random.random() < 0.45:
+            st.session_state.question = generate_question()
+        else:
+            st.session_state.score += 10 * st.session_state.mult
+
+st.progress(min(100, st.session_state.ball))
+
+if st.session_state.question:
+    q, choices, ans = st.session_state.question
+    choice = st.radio(q, ["A "+choices[0],"B "+choices[1],"C "+choices[2],"D "+choices[3]])
+    if st.button("Submit Answer"):
+        if choice.startswith(ans):
+            st.success("Correct!")
+            st.session_state.score += 100 * st.session_state.mult
+            st.session_state.mult += 1
+        else:
+            st.error("Wrong!")
+            st.session_state.mult = 1
+        st.session_state.question = None
