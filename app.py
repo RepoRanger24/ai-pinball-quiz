@@ -124,7 +124,7 @@ if q in recent:
     if ans not in ["A", "B", "C", "D"] or len(choices) != 4:
         return "Which unit measures resistance?", ["Volt", "Ohm", "Amp", "Watt"], "B"
 st.session_state.recent_questions.append(q)
-    return q, choices, ans
+return q, choices, ans
 
 # Buttons
 col1, col2, col3 = st.columns(3)
