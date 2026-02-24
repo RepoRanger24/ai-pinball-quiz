@@ -110,11 +110,11 @@ Return ONLY valid JSON in this exact schema:
     content = content.replace("```json", "").replace("```", "").strip()
 
     
-        data = json.loads(content)
+    data = json.loads(content)
 
-        q = data["question"]
-        choices = data["choices"]
-        ans = data["answer"].strip().upper()
+    q = data["question"]
+    choices = data["choices"]
+    ans = data["answer"].strip().upper()
 
         # Final guardrails
         if ans not in ["A", "B", "C", "D"] or len(choices) != 4:
