@@ -84,7 +84,7 @@ def generate_question(topic="Fun trivia", difficulty="Easy"):
         return "Which unit measures resistance?", ["Volt", "Ohm", "Amp", "Watt"], "B"
 
     import json
-
+recent = st.session_state.get("recent_questions", [])[-5:]
     prompt = f"""
 Create ONE multiple-choice question.
 
@@ -115,13 +115,16 @@ Return ONLY valid JSON in this exact schema:
     q = data["question"]
     choices = data["choices"]
     ans = data["answer"].strip().upper()
-
+# Prevent repeat questions
+recent = st.session_state.get("recent_questions", [])[-5:]
+if q in recent:
+    return generate_question(topic, difficulty)
     # Final guardrails
     if ans not in ["A", "B", "C", "D"] or len(choices) != 4:
         return "Which unit measures resistance?", ["Volt", "Ohm", "Amp", "Watt"], "B"
 
     return q, choices, ans
-
+st.session_state.recent_questions.append(q)
 # Buttons
 col1, col2, col3 = st.columns(3)
 with col1:
